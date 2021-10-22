@@ -7,9 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PhoneNumberExplorerApplication {
 
 
-
 		public static void main(final String[] args) {
 
 			SpringApplication.run(PhoneNumberExplorerApplication.class, args);
+			System.out.println("Hi there");
 		}
 }
