@@ -1,55 +1,43 @@
 package au.com.belong.phonenumberexplorer.model;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class CustomerPhoneNumber {
     public CustomerPhoneNumber() {
 
     }
+    public CustomerPhoneNumber(String custId, HashMap<String, Boolean> phoneNumStatusMap) {
+        this.custId = custId;
+        this.phoneNumStatusMap = phoneNumStatusMap;
 
+    }
+
+    @NotBlank
     private String custId;
-
-    public Set<String> getPhoneNum() {
-        return phoneNum;
-    }
-
-    public void setPhoneNum(Set<String> phoneNum) {
-        this.phoneNum = phoneNum;
-    }
-
-    @NotNull
-    @NotBlank(message = "Name is mandatory")
-    private Set<String> phoneNum;
-    private boolean isActivate;
+    private  HashMap<String, Boolean> phoneNumStatusMap;
 
 
     public String getCustId() {
         return custId;
     }
-
     public void setCustId(String custId) {
         this.custId = custId;
     }
 
 
-    public boolean isActivate() {
-        return isActivate;
+    public HashMap<String, Boolean> getPhoneNumStatusMap() {
+        return phoneNumStatusMap;
     }
 
-    public void setActivate(boolean activate) {
-        isActivate = activate;
+    public void setPhoneNumStatusMap(HashMap<String, Boolean> phoneNumStatusMap) {
+        this.phoneNumStatusMap = phoneNumStatusMap;
     }
 
 
-    public CustomerPhoneNumber(String custId, Set<String> phoneNum, boolean isActivate) {
-
-
-        this.custId = custId;
-        this.phoneNum = phoneNum;
-        this.isActivate = isActivate;
-    }
 
 
     @Override
@@ -57,8 +45,16 @@ public class CustomerPhoneNumber {
         return "CustomerPhoneNumber{" +
 
                 ", custId='" + custId + '\'' +
-                ", phoneNum='" + phoneNum + '\'' +
-                ", isActivate='" + isActivate + '\'' +
+                ", phoneNumStatusMap='" + phoneNumStatusMap + '\'' +
                 '}';
+    }
+
+    public static Set<String> getPhoneNum(CustomerPhoneNumber customerPhoneNumber) {
+        Set<String> phoneNum = new HashSet<>();
+            for (Map.Entry<String, Boolean> entry : customerPhoneNumber.getPhoneNumStatusMap().entrySet()) {
+                phoneNum.add(entry.getKey()) ;
+            }
+
+        return phoneNum;
     }
 }
