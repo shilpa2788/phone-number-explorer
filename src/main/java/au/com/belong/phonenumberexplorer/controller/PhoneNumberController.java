@@ -1,6 +1,7 @@
 package au.com.belong.phonenumberexplorer.controller;
 
 
+import au.com.belong.phonenumberexplorer.exceptions.InvalidInputException;
 import au.com.belong.phonenumberexplorer.model.CustomerPhoneNumber;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.Data;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -23,10 +23,10 @@ import static au.com.belong.phonenumberexplorer.model.ResponseHandler.generateRe
 @RestController
 @Slf4j
 @Data
-@RequestMapping(value = "/api/")
+@RequestMapping(value = "/api/v1")
 public class PhoneNumberController {
     /**
-     * Static data which gets initialized on run time
+     * Static data which gets initialized
      */
 
     Set<CustomerPhoneNumber> customerPhoneNumbers = new HashSet<CustomerPhoneNumber>();
@@ -71,16 +71,22 @@ public class PhoneNumberController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Set<String> getPhoneNumberByCustId(@PathVariable(value = "custId") String custId) {
         final long startTime = System.currentTimeMillis();
+        Set<String> phoneNumberResponse = new HashSet<>();
         log.info("API call requested for API getPhoneNumbers for custId :  " + custId + ": startTime is -" + startTime);
-        for ( CustomerPhoneNumber customerPhoneNumber : customerPhoneNumbers ) {
-            if (customerPhoneNumber.getCustId().equalsIgnoreCase(custId)) {
-                return Optional.of(customerPhoneNumber).map(CustomerPhoneNumber::getPhoneNum).orElse(null);
-            }
+
+        customerPhoneNumbers.stream().filter(customerPhoneNumber -> customerPhoneNumber.getCustId()
+                .equalsIgnoreCase(custId)).map(customerPhoneNumber -> customerPhoneNumber.getPhoneNum(customerPhoneNumber))
+                .forEach(phoneNumberResponse::addAll);
+
+        // if no phone number return the proper error message
+        if (phoneNumberResponse.isEmpty()) {
+            throw new InvalidInputException(custId + " is not valid");
         }
         final long endTime = System.currentTimeMillis();
         log.info("Time taken to provide response for API getPhoneNumbers for custId : "
                 + custId + " :_" + startTime + " is : " + (endTime - startTime) + " ms");
-        return Optional.<CustomerPhoneNumber>empty().map(CustomerPhoneNumber::getPhoneNum).orElse(null);
+        return phoneNumberResponse;
+
     }
 
     @Operation(summary = "This Post method is to activate the given phone number of a customer. " +
@@ -89,9 +95,12 @@ public class PhoneNumberController {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public AtomicReference<ResponseEntity<Object>> activatePhoneNumber(@RequestBody final Set<String> phoneNumber) {
+
         final long startTime = System.currentTimeMillis();
-        log.info("API call requested for API activatePhoneNumber :  " + phoneNumber + "_" + startTime);
         AtomicReference<ResponseEntity<Object>> responseObj = new AtomicReference<>();
+
+        log.info("API call requested for API activatePhoneNumber :  " + phoneNumber + "_" + startTime);
+
         customerPhoneNumbers.forEach(customer -> {
             customer.getPhoneNumStatusMap().forEach((number, status) -> {
                 phoneNumber.stream().filter(num -> num.equalsIgnoreCase(number)).map(num -> status
@@ -103,6 +112,7 @@ public class PhoneNumberController {
         if (responseObj.toString().equalsIgnoreCase("null")) {
             responseObj.set(generateResponse("Phone number NotFound !", HttpStatus.NOT_FOUND));
         }
+
         final long endTime = System.currentTimeMillis();
         log.info("Time taken to provide response for API activatePhoneNumber for number: "
                 + phoneNumber + "_" + startTime + " is : " + (endTime - startTime) + " ms");

@@ -50,7 +50,7 @@ public class CustomerPhoneNumber {
      * @param customerPhoneNumber
      * @return phone numbers set of an associated customer
      */
-    public static Set<String> getPhoneNum(CustomerPhoneNumber customerPhoneNumber) {
+    public  Set<String> getPhoneNum(CustomerPhoneNumber customerPhoneNumber) {
         Set<String> phoneNum = new HashSet<>();
         customerPhoneNumber.getPhoneNumStatusMap().forEach((key, value) -> phoneNum.add(key));
         return phoneNum;
