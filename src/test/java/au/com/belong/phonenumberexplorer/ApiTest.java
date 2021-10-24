@@ -48,7 +48,7 @@ public class ApiTest {
 
 
   @Test
-    public void test_existence_of_vertices_missing() throws Exception {
+    public void test_existence_of_activatePhoneNumber_with_payload() throws Exception {
 
       Set<String> payload = new HashSet<>();
       payload.add("0478929142");
