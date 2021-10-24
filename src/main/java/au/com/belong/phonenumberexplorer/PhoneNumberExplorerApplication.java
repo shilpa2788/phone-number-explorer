@@ -8,8 +8,7 @@ public class PhoneNumberExplorerApplication {
 
 
 		public static void main(final String[] args) {
+		    SpringApplication.run(PhoneNumberExplorerApplication.class, args);
 
-			SpringApplication.run(PhoneNumberExplorerApplication.class, args);
-			System.out.println("Hi there");
 		}
 }

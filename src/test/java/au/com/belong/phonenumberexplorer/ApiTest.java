@@ -13,6 +13,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -35,29 +38,38 @@ public class ApiTest {
     }
 
     @Test
-    public void test_existence_of_vertices_no_payload() throws Exception {
+    public void test_existence_of_all_phone_numbers() throws Exception {
         this.mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/getAllPhoneNumbers")
+                MockMvcRequestBuilders.get("/api/v1/getAllPhoneNumbers")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isOk());
     }
 
-    @Test
-    public void test_existence_of_customer_phone_number_no_payload() throws Exception {
-        this.mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/getPhoneNumbers")
+
+  @Test
+    public void test_existence_of_vertices_missing() throws Exception {
+
+      Set<String> payload = new HashSet<>();
+      payload.add("0478929142");
+      this.mockMvc.perform(
+                MockMvcRequestBuilders.post("/api/v1/activatePhoneNumber")
+                        .content(mapper.writeValueAsString(payload))
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isOk());
     }
 
+
     @Test
-    public void test_existence_of_activate_phone_number_no_payload() throws Exception {
+    public void test_existence_of_null_custId() throws Exception {
+
+        Set<String> payload = new HashSet<>();
         this.mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/activatePhoneNumber")
+                MockMvcRequestBuilders.get("/api/v1/getPhoneNumbers/null")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().is(404));
+        ).andExpect(status().is(400));
     }
 }
+
