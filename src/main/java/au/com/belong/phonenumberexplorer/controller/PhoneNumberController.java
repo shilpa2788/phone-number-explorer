@@ -25,6 +25,9 @@ import static au.com.belong.phonenumberexplorer.model.ResponseHandler.generateRe
 @Data
 @RequestMapping(value = "/api/")
 public class PhoneNumberController {
+    /**
+     * Static data which gets initialized on run time
+     */
 
     Set<CustomerPhoneNumber> customerPhoneNumbers = new HashSet<CustomerPhoneNumber>();
 
@@ -34,7 +37,6 @@ public class PhoneNumberController {
         phoneNumStatusMap.put("0478929152", false);
         phoneNumStatusMap.put("0478929162", false);
 
-
         HashMap<String, Boolean> phoneNumStatusMap1 = new HashMap<>();
         phoneNumStatusMap1.put("0478929242", false);
         phoneNumStatusMap1.put("0478929252", true);
@@ -42,7 +44,6 @@ public class PhoneNumberController {
 
         customerPhoneNumbers.add(new CustomerPhoneNumber("cust1", phoneNumStatusMap));
         customerPhoneNumbers.add(new CustomerPhoneNumber("cust2", phoneNumStatusMap1));
-
     }
 
     /**
@@ -70,7 +71,7 @@ public class PhoneNumberController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Set<String> getPhoneNumberByCustId(@PathVariable(value = "custId") String custId) {
         final long startTime = System.currentTimeMillis();
-        log.info("API call requested for API getPhoneNumbers for custId :  " + custId + "_" + startTime);
+        log.info("API call requested for API getPhoneNumbers for custId :  " + custId + ": startTime is -" + startTime);
         for ( CustomerPhoneNumber customerPhoneNumber : customerPhoneNumbers ) {
             if (customerPhoneNumber.getCustId().equalsIgnoreCase(custId)) {
                 return Optional.of(customerPhoneNumber).map(CustomerPhoneNumber::getPhoneNum).orElse(null);
@@ -78,7 +79,7 @@ public class PhoneNumberController {
         }
         final long endTime = System.currentTimeMillis();
         log.info("Time taken to provide response for API getPhoneNumbers for custId : "
-                + custId + "_" + startTime + " is : " + (endTime - startTime) + " ms");
+                + custId + " :_" + startTime + " is : " + (endTime - startTime) + " ms");
         return Optional.<CustomerPhoneNumber>empty().map(CustomerPhoneNumber::getPhoneNum).orElse(null);
     }
 
@@ -93,12 +94,15 @@ public class PhoneNumberController {
         AtomicReference<ResponseEntity<Object>> responseObj = new AtomicReference<>();
         customerPhoneNumbers.forEach(customer -> {
             customer.getPhoneNumStatusMap().forEach((number, status) -> {
-                phoneNumber.stream().filter(num -> num.equalsIgnoreCase(number)).forEach(num -> {
-                    responseObj.set(status ? generateResponse("Number activated already!", HttpStatus.OK)
-                            : generateResponse("Phone number activated !", HttpStatus.OK));
-                });
+                phoneNumber.stream().filter(num -> num.equalsIgnoreCase(number)).map(num -> status
+                        ? generateResponse("Phone number activated already!", HttpStatus.OK)
+                        : generateResponse("Phone number activated !", HttpStatus.OK)).forEach(responseObj::set);
             });
         });
+        // if no response Object set that means Num is not present in DB
+        if (responseObj.toString().equalsIgnoreCase("null")) {
+            responseObj.set(generateResponse("Phone number NotFound !", HttpStatus.NOT_FOUND));
+        }
         final long endTime = System.currentTimeMillis();
         log.info("Time taken to provide response for API activatePhoneNumber for number: "
                 + phoneNumber + "_" + startTime + " is : " + (endTime - startTime) + " ms");

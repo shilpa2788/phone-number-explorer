@@ -35,7 +35,7 @@ public class ApiTest {
     }
 
     @Test
-    public void test_existence_of_vertices_no_payload() throws Exception {
+    public void test_existence_of_all_phone_numbers() throws Exception {
         this.mockMvc.perform(
                 MockMvcRequestBuilders.get("/api/getAllPhoneNumbers")
                         .accept(MediaType.APPLICATION_JSON)
